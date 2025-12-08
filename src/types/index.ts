@@ -11,3 +11,7 @@ export type RegistroForm = Pick<
   password: string;
   confirmacion_password: string;
 };
+
+export type LoginForm = Pick<Usuario, "correo"> & {
+  password: string;
+};
