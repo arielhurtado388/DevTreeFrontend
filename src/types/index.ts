@@ -1,7 +1,9 @@
 export type Usuario = {
+  _id: string;
   nombreUsuario: string;
   nombre: string;
   correo: string;
+  descripcion: string;
 };
 
 export type RegistroForm = Pick<
@@ -15,3 +17,5 @@ export type RegistroForm = Pick<
 export type LoginForm = Pick<Usuario, "correo"> & {
   password: string;
 };
+
+export type PerfilForm = Pick<Usuario, "nombreUsuario" | "descripcion">;
