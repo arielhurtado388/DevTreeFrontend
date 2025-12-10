@@ -4,6 +4,7 @@ export type Usuario = {
   nombre: string;
   correo: string;
   descripcion: string;
+  imagen: string;
 };
 
 export type RegistroForm = Pick<
