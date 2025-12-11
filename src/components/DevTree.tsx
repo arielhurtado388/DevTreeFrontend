@@ -4,6 +4,14 @@ import { Toaster } from "sonner";
 import type { SocialNetwork, Usuario } from "../types";
 import { useEffect, useState } from "react";
 import DevTreeLink from "./DevTreeLink";
+import { DndContext, closestCenter } from "@dnd-kit/core";
+import type { DragEndEvent } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { useQueryClient } from "@tanstack/react-query";
 
 type DevTreeProps = {
   data: Usuario;
@@ -18,6 +26,33 @@ export default function DevTree({ data }: DevTreeProps) {
   useEffect(() => {
     setLinksActivos(activos);
   }, [data]);
+
+  const queryClient = useQueryClient();
+
+  const handleDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+
+    if (over && over.id) {
+      const prevIndex = linksActivos.findIndex((link) => link.id === active.id);
+      const nuevoIndex = linksActivos.findIndex((link) => link.id === over.id);
+      const orden = arrayMove(linksActivos, prevIndex, nuevoIndex);
+      setLinksActivos(orden);
+
+      const desactivados: SocialNetwork[] = JSON.parse(data.links).filter(
+        (item: SocialNetwork) => !item.habilitada
+      );
+
+      // const links= [...orden, ...desactivados]
+      const links = orden.concat(desactivados);
+
+      queryClient.setQueryData(["usuario"], (prevData: Usuario) => {
+        return {
+          ...prevData,
+          links: JSON.stringify(links),
+        };
+      });
+    }
+  };
 
   return (
     <>
@@ -69,11 +104,21 @@ export default function DevTree({ data }: DevTreeProps) {
                 {data.descripcion}
               </p>
 
-              <div className="mt-20 flex flex-col gap-5 ">
-                {linksActivos.map((link) => (
-                  <DevTreeLink key={link.nombre} link={link} />
-                ))}
-              </div>
+              <DndContext
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <div className="mt-20 flex flex-col gap-5 ">
+                  <SortableContext
+                    items={linksActivos}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {linksActivos.map((link) => (
+                      <DevTreeLink key={link.nombre} link={link} />
+                    ))}
+                  </SortableContext>
+                </div>
+              </DndContext>
             </div>
           </div>
         </main>

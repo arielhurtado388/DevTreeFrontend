@@ -60,7 +60,6 @@ export default function LinkTreeView() {
       }
       return link;
     });
-    setDevTreeLinks(linksActualizados);
 
     let itemsActualizados: SocialNetwork[] = [];
 
@@ -100,7 +99,8 @@ export default function LinkTreeView() {
             id: 0,
             habilitada: false,
           };
-        } else if (link.id > indexParaActualizar) {
+        } else if (link.id > links[indexParaActualizar].id) {
+          // Condicion para ordenar indices correctamente
           return {
             ...link,
             id: link.id - 1,
@@ -111,7 +111,9 @@ export default function LinkTreeView() {
       });
     }
 
-    // Almacenar en la DB
+    setDevTreeLinks(linksActualizados); // Sincronizar el state luego de todas las interaccciones
+
+    // Almacenar en en cache del usuario y esos datos se tomaran al guardar los cambios
     queryClient.setQueryData(["usuario"], (prevData: Usuario) => {
       return {
         ...prevData,
@@ -132,7 +134,7 @@ export default function LinkTreeView() {
       ))}
       <button
         className="bg-cyan-400 p-2 text-lg w-full uppercase text-slate-600 rounded-lg font-bold"
-        onClick={() => mutate(usuario)}
+        onClick={() => mutate(queryClient.getQueryData(["usuario"])!)}
       >
         Guardar cambios
       </button>
