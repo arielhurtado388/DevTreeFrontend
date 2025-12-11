@@ -13,7 +13,7 @@ export async function obtenerUsuario() {
   }
 }
 
-export async function actualizarPerfil(datosForm: PerfilForm) {
+export async function actualizarPerfil(datosForm: Usuario) {
   try {
     const { data } = await api.patch<string>("/usuario", datosForm);
     return data;
