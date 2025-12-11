@@ -41,21 +41,17 @@ export default function LinkTreeView() {
   }, []);
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const actualizarLinks = devTreeLinks.map((link) =>
+    const linksActualizados = devTreeLinks.map((link) =>
       link.nombre === e.target.name ? { ...link, url: e.target.value } : link
     );
-    setDevTreeLinks(actualizarLinks);
-    queryClient.setQueryData(["usuario"], (prevData: Usuario) => {
-      return {
-        ...prevData,
-        links: JSON.stringify(actualizarLinks),
-      };
-    });
+    setDevTreeLinks(linksActualizados);
   };
 
-  const handleLinkHabilitado = (sociaNetwork: string) => {
-    const actualizarLinks = devTreeLinks.map((link) => {
-      if (link.nombre === sociaNetwork) {
+  const links: SocialNetwork[] = JSON.parse(usuario.links);
+
+  const handleLinkHabilitado = (socialNetwork: string) => {
+    const linksActualizados = devTreeLinks.map((link) => {
+      if (link.nombre === socialNetwork) {
         if (esUrlValida(link.url)) {
           return { ...link, habilitada: !link.habilitada };
         } else {
@@ -64,11 +60,62 @@ export default function LinkTreeView() {
       }
       return link;
     });
-    setDevTreeLinks(actualizarLinks);
+    setDevTreeLinks(linksActualizados);
+
+    let itemsActualizados: SocialNetwork[] = [];
+
+    const redSocialSeleccionada = linksActualizados.find(
+      (link) => link.nombre === socialNetwork
+    );
+
+    if (redSocialSeleccionada?.habilitada) {
+      const id = links.filter((link) => link.id).length + 1;
+      if (links.some((link) => link.nombre === socialNetwork)) {
+        itemsActualizados = links.map((link) => {
+          if (link.nombre === socialNetwork) {
+            return {
+              ...link,
+              habilitada: true,
+              id,
+            };
+          } else {
+            return link;
+          }
+        });
+      } else {
+        const nuevoItem = {
+          ...redSocialSeleccionada,
+          id,
+        };
+        itemsActualizados = [...links, nuevoItem];
+      }
+    } else {
+      const indexParaActualizar = links.findIndex(
+        (link) => link.nombre === socialNetwork
+      );
+      itemsActualizados = links.map((link) => {
+        if (link.nombre === socialNetwork) {
+          return {
+            ...link,
+            id: 0,
+            habilitada: false,
+          };
+        } else if (link.id > indexParaActualizar) {
+          return {
+            ...link,
+            id: link.id - 1,
+          };
+        } else {
+          return link;
+        }
+      });
+    }
+
+    // Almacenar en la DB
     queryClient.setQueryData(["usuario"], (prevData: Usuario) => {
       return {
         ...prevData,
-        links: JSON.stringify(actualizarLinks),
+        links: JSON.stringify(itemsActualizados),
       };
     });
   };
