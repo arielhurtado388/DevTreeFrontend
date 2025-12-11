@@ -20,3 +20,12 @@ export type LoginForm = Pick<Usuario, "correo"> & {
 };
 
 export type PerfilForm = Pick<Usuario, "nombreUsuario" | "descripcion">;
+
+export type SocialNetwork = {
+  id: number;
+  nombre: string;
+  url: string;
+  habilitada: boolean;
+};
+
+export type DevTreeLink = Pick<SocialNetwork, "nombre" | "url" | "habilitada">;
