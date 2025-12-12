@@ -45,11 +45,29 @@ export default function LinkTreeView() {
       link.nombre === e.target.name ? { ...link, url: e.target.value } : link
     );
     setDevTreeLinks(linksActualizados);
+
+    queryClient.setQueryData(["usuario"], (prevData: Usuario) => {
+      const linksGuardados: SocialNetwork[] = JSON.parse(prevData.links);
+
+      const linksActualizadosConId = linksGuardados.map((link) => {
+        if (link.nombre === e.target.name) {
+          return { ...link, url: e.target.value };
+        }
+        return link;
+      });
+
+      return {
+        ...prevData,
+        links: JSON.stringify(linksActualizadosConId),
+      };
+    });
   };
 
-  const links: SocialNetwork[] = JSON.parse(usuario.links);
-
   const handleLinkHabilitado = (socialNetwork: string) => {
+    const linksGuardados: SocialNetwork[] = JSON.parse(
+      queryClient.getQueryData<Usuario>(["usuario"])!.links
+    );
+
     const linksActualizados = devTreeLinks.map((link) => {
       if (link.nombre === socialNetwork) {
         if (esUrlValida(link.url)) {
@@ -68,9 +86,9 @@ export default function LinkTreeView() {
     );
 
     if (redSocialSeleccionada?.habilitada) {
-      const id = links.filter((link) => link.id).length + 1;
-      if (links.some((link) => link.nombre === socialNetwork)) {
-        itemsActualizados = links.map((link) => {
+      const id = linksGuardados.filter((link) => link.id).length + 1;
+      if (linksGuardados.some((link) => link.nombre === socialNetwork)) {
+        itemsActualizados = linksGuardados.map((link) => {
           if (link.nombre === socialNetwork) {
             return {
               ...link,
@@ -86,20 +104,20 @@ export default function LinkTreeView() {
           ...redSocialSeleccionada,
           id,
         };
-        itemsActualizados = [...links, nuevoItem];
+        itemsActualizados = [...linksGuardados, nuevoItem];
       }
     } else {
-      const indexParaActualizar = links.findIndex(
+      const indexParaActualizar = linksGuardados.findIndex(
         (link) => link.nombre === socialNetwork
       );
-      itemsActualizados = links.map((link) => {
+      itemsActualizados = linksGuardados.map((link) => {
         if (link.nombre === socialNetwork) {
           return {
             ...link,
             id: 0,
             habilitada: false,
           };
-        } else if (link.id > links[indexParaActualizar].id) {
+        } else if (link.id > linksGuardados[indexParaActualizar].id) {
           // Condicion para ordenar indices correctamente
           return {
             ...link,
