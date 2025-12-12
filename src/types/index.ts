@@ -8,6 +8,11 @@ export type Usuario = {
   links: string;
 };
 
+export type NombreUsuario = Pick<
+  Usuario,
+  "descripcion" | "nombreUsuario" | "nombre" | "imagen" | "links"
+>;
+
 export type RegistroForm = Pick<
   Usuario,
   "nombreUsuario" | "nombre" | "correo"

@@ -1,6 +1,6 @@
 import { isAxiosError } from "axios";
 import api from "../config/axios";
-import type { PerfilForm, Usuario } from "../types";
+import type { NombreUsuario, Usuario } from "../types";
 
 export async function obtenerUsuario() {
   try {
@@ -35,6 +35,17 @@ export async function subirImagen(imagen: File) {
       datosForm
     );
     return imagen;
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error);
+    }
+  }
+}
+
+export async function obtenerUsuarioPorHandle(nombreUsuario: string) {
+  try {
+    const { data } = await api<NombreUsuario>(`/${nombreUsuario}`);
+    return data;
   } catch (error) {
     if (isAxiosError(error) && error.response) {
       throw new Error(error.response.data.error);
