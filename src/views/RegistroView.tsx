@@ -1,16 +1,19 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import Alerta from "../components/Alerta";
 import type { RegistroForm } from "../types";
-import { isAxiosError } from "axios";
 import { toast } from "sonner";
-import api from "../config/axios";
+import { useMutation } from "@tanstack/react-query";
+import { registro } from "../api/DevTreeAPI";
 
 export default function RegistroView() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const valoresIniciales: RegistroForm = {
     nombre: "",
     correo: "",
-    nombreUsuario: "",
+    nombreUsuario: location?.state?.nombreUsuario || "",
     password: "",
     confirmacion_password: "",
   };
@@ -25,16 +28,20 @@ export default function RegistroView() {
 
   const password = watch("password");
 
-  const handleRegistro = async (datosForm: RegistroForm) => {
-    try {
-      const { data } = await api.post("/auth/registro", datosForm);
+  const { mutate } = useMutation({
+    mutationFn: registro,
+    onError: (error) => {
+      toast.error(error.message);
+    },
+    onSuccess: (data) => {
       toast.success(data);
       reset();
-    } catch (error) {
-      if (isAxiosError(error) && error.response) {
-        toast.error(error.response.data.error);
-      }
-    }
+      navigate("/auth/iniciar-sesion");
+    },
+  });
+
+  const handleRegistro = (datosForm: RegistroForm) => {
+    mutate(datosForm);
   };
 
   return (

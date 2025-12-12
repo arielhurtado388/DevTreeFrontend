@@ -1,2 +1,11 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/forms";
+
+@media (min-width: 1024px) {
+  .imagen-fondo {
+    background-image: url("/bg.svg");
+    background-repeat: no-repeat;
+    background-position: right top;
+    background-size: 50%;
+  }
+}

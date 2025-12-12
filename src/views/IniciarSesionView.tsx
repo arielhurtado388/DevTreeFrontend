@@ -1,12 +1,14 @@
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { LoginForm } from "../types";
 import Alerta from "../components/Alerta";
-import api from "../config/axios";
 import { toast } from "sonner";
-import { isAxiosError } from "axios";
+import { useMutation } from "@tanstack/react-query";
+import { login } from "../api/DevTreeAPI";
 
 export default function IniciarSesionView() {
+  const navigate = useNavigate();
+
   const valoresIniciales: LoginForm = {
     correo: "",
     password: "",
@@ -18,15 +20,20 @@ export default function IniciarSesionView() {
     formState: { errors },
   } = useForm({ defaultValues: valoresIniciales });
 
-  const handleLogin = async (datosForm: LoginForm) => {
-    try {
-      const { data } = await api.post("/auth/iniciar-sesion", datosForm);
+  const { mutate } = useMutation({
+    mutationFn: login,
+    onError: (error) => {
+      toast.error(error.message);
+    },
+    onSuccess: (data) => {
       localStorage.setItem("AUTH_TOKEN", data);
-    } catch (error) {
-      if (isAxiosError(error) && error.response) {
-        toast.error(error.response.data.error);
-      }
-    }
+      toast.success("Autenticado");
+      navigate("/admin");
+    },
+  });
+
+  const handleLogin = (datosForm: LoginForm) => {
+    mutate(datosForm);
   };
 
   return (

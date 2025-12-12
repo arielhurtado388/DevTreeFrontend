@@ -1,6 +1,28 @@
 import { isAxiosError } from "axios";
 import api from "../config/axios";
-import type { NombreUsuario, Usuario } from "../types";
+import type { LoginForm, NombreUsuario, RegistroForm, Usuario } from "../types";
+
+export async function registro(datosForm: RegistroForm) {
+  try {
+    const { data } = await api.post<string>("/auth/registro", datosForm);
+    return data;
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error);
+    }
+  }
+}
+
+export async function login(datosForm: LoginForm) {
+  try {
+    const { data } = await api.post("/auth/iniciar-sesion", datosForm);
+    return data;
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error);
+    }
+  }
+}
 
 export async function obtenerUsuario() {
   try {
@@ -45,6 +67,17 @@ export async function subirImagen(imagen: File) {
 export async function obtenerUsuarioPorHandle(nombreUsuario: string) {
   try {
     const { data } = await api<NombreUsuario>(`/${nombreUsuario}`);
+    return data;
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error);
+    }
+  }
+}
+
+export async function buscarPorHandle(nombreUsuario: string) {
+  try {
+    const { data } = await api.post<string>("/buscar", { nombreUsuario });
     return data;
   } catch (error) {
     if (isAxiosError(error) && error.response) {
