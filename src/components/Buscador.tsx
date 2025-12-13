@@ -31,7 +31,7 @@ export default function Buscador() {
   return (
     <form onSubmit={handleSubmit(handleBusqueda)} className="space-y-5">
       <div className="relative flex items-center  bg-white  px-2">
-        <label htmlFor="nombreUsuario">devtree.com/</label>
+        <label htmlFor="nombreUsuario">{window.location.hostname}/</label>
         <input
           type="text"
           id="nombreUsuario"
